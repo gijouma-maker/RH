@@ -1,11 +1,11 @@
-# RH – Umbau 3D (Variante 5)
+# RH – Umbau 3D (Variante 6)
 
 Interaktives 3D-Modell des Hauses (Keller, Erdgeschoss mit Anbau, Dachgeschoss, Dach) mit dem geplanten Umbau und Möbeln im skandinavischen Stil.
 
 **Inhalt der Planung**
-- EG: Gästezimmer + Gäste-WC links vorne, Wohnen links hinten, Küche bleibt unverändert, Schlafen rechts hinten
+- EG: Gästezimmer + Gästebad links vorne; Wohnen, Essen und Küche als ein offener Raum (Wände neben der Treppe entfernt, Unterzüge)
 - Kellertreppe bleibt und wird eingemauert, mit eigener Tür
-- Neue moderne Treppe (Stahlwangen anthrazit, offene Eichenstufen) im mittleren Flur
+- Neue L-Treppe mit Podest (Stahlwangen anthrazit, offene Eichenstufen) frei im offenen Raum; Windfang mit Glaswand
 - DG: neues Bad über dem Kellerschacht, Fallleitung senkrecht bis in den Keller, rechts Zimmer A und B mit Giebelfenstern
 
 ## Online stellen mit GitHub Pages

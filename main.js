@@ -156,55 +156,74 @@ function label(g, text, x, y, z, color = '#1b2631') {
     box(g, a, b, c, d, -SLAB, 0, mat.floor);
   box(g, 6.22, 0.45, 9.8, 4.0, 0.001, 0.01, mat.kitchen);
   // weiße Decke EG (unter dem DG-Fußboden, mit Treppenloch)
-  for (const [a, b, c, d] of [[0.45, 0.45, W - 0.45, 4.0], [0.45, 4.0, 4.95, D - 0.45], [6.075, 4.0, W - 0.45, D - 0.45]])
-    box(g, a, b, c, d, EG_H - 0.02, EG_H - 0.005, M(0xf7f5f0));
+  for (const [a, b, c, d] of [[0.45, 0.45, W - 0.45, 4.545], [0.45, 4.545, 4.95, D - 0.45], [6.075, 4.545, W - 0.45, 6.885], [6.9, 6.885, W - 0.45, D - 0.45]])
+    box(groups.dg, a, b, c, d, EG_H - 0.02, EG_H - 0.005, M(0xf7f5f0));
   // Außenwände
   wall(g, 0, 0, W, 0.45, 0, H, mat.outer, [win(1.235, 3.125), [4.585, 5.595, 0, 2.15], win(7.055, 8.945)]);
   wall(g, 0, D - 0.45, W, D, 0, H, mat.outer, [door(4.2, 5.0), win(7.2, 8.6)]);
   wall(g, 0, 0.45, 0.45, D - 0.45, 0, H, mat.outer, [win(5.5, 6.86)]);
   wall(g, W - 0.45, 0.45, W, D - 0.45, 0, H, mat.outer);
-  // Innenwände Variante 5
+  // Innenwände Variante 6 (offener Wohnbereich)
   wall(g, 0.45, 4.0, 3.98, 4.115, 0, H, mat.wall);                                    // Gäste | Wohnen
-  wall(g, 2.2, 2.1, 2.3, 4.0, 0, H, mat.wall);                                        // WC
+  wall(g, 2.2, 2.1, 2.3, 4.0, 0, H, mat.wall);                                        // Gästebad
   wall(g, 2.2, 2.1, 3.98, 2.2, 0, H, mat.wall);
-  wall(g, 3.98, 0.45, 4.095, D - 0.45, 0, H, mat.wall, [door(0.6, 1.4), door(2.5, 3.3), door(5.0, 5.9)]);
-  wall(g, 6.105, 0.45, 6.22, D - 0.45, 0, H, mat.wall, [door(1.2, 2.0), door(4.15, 4.95)]);
-  wall(g, 6.22, 4.0, 9.8, 4.115, 0, H, mat.wall);                                     // Küche | Schlafen
+  wall(g, 3.98, 0.45, 4.095, 4.115, 0, H, mat.wall, [door(0.6, 1.4), door(2.5, 3.3)]); // nur vorne bleibt
+  wall(g, 6.105, 0.45, 6.22, 4.1, 0, H, mat.wall, [door(1.2, 2.0)]);                  // Küche | Windfang
+  // Unterzüge (Stahlträger, weiß verkleidet) statt der abgerissenen Wände
+  const uz = M(0xf1efea);
+  box(g, 3.98, 4.115, 4.095, D - 0.45, H - 0.28, H - 0.02, uz);
+  box(g, 6.105, 4.1, 6.22, D - 0.45, H - 0.28, H - 0.02, uz);
+  box(g, 6.22, 4.0, 9.8, 4.115, H - 0.28, H - 0.02, uz);
   // Kellertreppe eingemauert (bis zur Decke) mit eigener Tür
   wall(g, 5.05, 2.05, 5.15, 4.1, 0, H, mat.kgWall);
   wall(g, 5.05, 2.05, 6.105, 2.15, 0, H, mat.kgWall);
   wall(g, 5.05, 4.0, 6.105, 4.1, 0, H, mat.kgWall, [door(5.2, 6.05)]);
   box(g, 5.15, 2.15, 6.105, 4.0, H - 0.02, H, mat.kgWall);
+  // Windfang: Glaswand mit Glastür (hält Wärme im Wohnbereich, Keller bleibt separat)
+  const gl = M(0xcfe8f5, { transparent: true, opacity: 0.3, roughness: 0.05 });
+  box(g, 4.095, 4.86, 5.15, 4.9, 0, H, gl); box(g, 3.98, 4.115, 4.095, 4.9, 0, H, gl);
+  box(g, 5.15, 4.86, 6.105, 4.9, 0, 2.3, gl);
+  box(g, 4.095, 4.85, 4.12, 4.91, 0, H, mat.steel); box(g, 5.13, 4.85, 5.16, 4.91, 0, H, mat.steel);
 
-  // ---- Neue Treppe: Stahlwangen + Eichenstufen, offen ----
-  const n = 17, r = DG0 / n, yTop = 4.0, yFoot = 7.75, gd = (yFoot - yTop) / (n - 1);
-  const xL = 5.18, xR = 6.08, tread = 0.045;
-  for (let i = 1; i < n; i++) {
-    const ya = yFoot - i * gd, h = i * r;
-    box(g, xL + 0.05, ya - 0.03, xR - 0.05, ya + gd, h - tread, h, mat.oak);
+  // ---- Neue L-Treppe: Stahlwangen + Eichenstufen, Podest hinten ----
+  const r = DG0 / 17, gd = 0.26, tread = 0.045;
+  // unterer Lauf an der Rückwand (steigt nach links), 6 Stufen
+  const xs = 7.76, yb0 = 6.92, yb1 = 7.84;
+  for (let i = 1; i <= 6; i++) box(g, xs - i * gd, yb0, xs - (i - 1) * gd + 0.03, yb1, i * r - tread, i * r, mat.oak);
+  // Podest
+  const hp = 7 * r;
+  box(g, 5.15, 6.885, 6.2, 7.86, hp - 0.06, hp, mat.oak); box(g, 5.15, 6.885, 6.2, 7.86, hp - 0.2, hp - 0.06, mat.steel);
+  for (const [x, y] of [[5.2, 6.93], [6.15, 6.93]]) box(g, x - 0.04, y - 0.04, x + 0.04, y + 0.04, 0, hp - 0.2, mat.steel);
+  // oberer Lauf (steigt nach vorne), 9 Stufen bis DG
+  const xL = 5.18, xR = 6.08, yP = 6.885;
+  for (let j = 1; j <= 9; j++) box(g, xL + 0.05, yP - j * gd, xR - 0.05, yP - (j - 1) * gd + 0.03, (7 + j) * r - tread, (7 + j) * r, mat.oak);
+  const yTop = yP - 9 * gd;
+  function stringer(x0, y0, h0, x1, y1, h1, w = 0.03) {
+    const dx = x1 - x0, dy = y1 - y0, dh = h1 - h0, L2 = Math.hypot(dx, dy);
+    const len = Math.hypot(L2, dh);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.26, len), mat.steel);
+    m.position.set((x0 + x1) / 2 - CX, (h0 + h1) / 2 - 0.12, CZ - (y0 + y1) / 2);
+    m.rotation.order = 'YXZ'; m.rotation.y = Math.atan2(dx, -dy); m.rotation.x = -Math.atan2(dh, L2);
+    m.castShadow = true; g.add(m); return m;
   }
-  // Wangen als geneigte Stahlplatten
-  const len = Math.hypot(yFoot - yTop, DG0), ang = Math.atan2(DG0, yFoot - yTop);
-  for (const x of [xL, xR]) {
-    const s = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.28, len), mat.steel);
-    s.position.set(x - CX, DG0 / 2 - 0.12, CZ - (yTop + yFoot) / 2);
-    s.rotation.x = -ang; s.castShadow = true; g.add(s);
-  }
-  // Geländer: Stahlstäbe + Handlauf (linke, offene Seite)
-  const hr = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, len), mat.steel);
-  hr.position.set(xL - 0.02 - CX, DG0 / 2 + 0.9, CZ - (yTop + yFoot) / 2); hr.rotation.x = -ang; g.add(hr);
-  for (let i = 1; i < n; i += 2) {
-    const ya = yFoot - i * gd + gd / 2, h = i * r;
-    box(g, xL - 0.04, ya - 0.01, xL, ya + 0.01, h, h + 0.9, mat.steel);
-  }
+  // Wangen unterer Lauf
+  stringer(xs, yb0 - 0.02, 0, 6.2, yb0 - 0.02, hp); stringer(xs, yb1 + 0.02, 0, 6.2, yb1 + 0.02, hp);
+  // Wangen oberer Lauf
+  stringer(xL, yP, hp, xL, yTop, DG0); stringer(xR, yP, hp, xR, yTop, DG0);
+  // Geländer (offene Seiten): Handlauf + Stäbe
+  const rail = (x0, y0, h0, x1, y1, h1) => { const m = stringer(x0, y0, h0 + 1.02, x1, y1, h1 + 1.02, 0.04); m.scale.y = 0.16; };
+  rail(xs, yb0 - 0.05, 0, 6.2, yb0 - 0.05, hp); rail(xL - 0.03, yP, hp, xL - 0.03, yTop, DG0);
+  for (let i = 1; i <= 6; i++) box(g, xs - i * gd + 0.1, yb0 - 0.07, xs - i * gd + 0.12, yb0 - 0.05, i * r, i * r + 0.9, mat.steel);
+  for (let j = 1; j <= 9; j++) box(g, xL - 0.05, yP - j * gd + 0.1, xL - 0.03, yP - j * gd + 0.12, (7 + j) * r, (7 + j) * r + 0.9, mat.steel);
+  box(g, 5.12, 6.885, 5.15, 7.86, hp, hp + 0.95, mat.steel);
   // Fallleitung DG-Bad → Keller (durch den Kellerschacht)
   const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, DG0 + 0.8 - KG0, 16), mat.pipe);
   pipe.position.set(5.9 - CX, (DG0 + 0.8 + KG0) / 2, CZ - 2.5); g.add(pipe);
 
-  label(L, 'Gästezimmer', 1.3, 1.0, 1.6); label(L, 'Gäste-WC', 3.1, 3.1, 1.6);
-  label(L, 'Wohnen', 2.2, 6.0, 1.6); label(L, 'Küche (bleibt)', 8.0, 2.2, 1.6);
-  label(L, 'Schlafen', 8.0, 6.0, 1.6); label(L, 'Flur', 4.6, 1.2, 1.6);
-  label(L, 'Keller ↓', 5.6, 3.0, 2.2, '#117a65'); label(L, 'Treppe Stahl/Eiche', 5.6, 7.6, 2.6, '#7b241c');
+  label(L, 'Gästezimmer', 1.3, 1.0, 1.6); label(L, 'Gästebad', 3.1, 3.1, 1.6);
+  label(L, 'Wohnen (offen)', 2.2, 6.0, 1.9); label(L, 'Küche (offen)', 8.0, 2.2, 1.9);
+  label(L, 'Essen (offen)', 8.5, 5.5, 1.9); label(L, 'Windfang', 4.6, 1.2, 1.9);
+  label(L, 'Keller ↓', 5.6, 3.0, 2.2, '#117a65'); label(L, 'L-Treppe Stahl/Eiche', 6.8, 7.4, 2.4, '#7b241c');
 
   // ---- Anbau (unverändert) ----
   const AH = 2.6, y8 = D, y13 = 13.45, y17 = 17.28;
@@ -227,7 +246,7 @@ function label(g, text, x, y, z, color = '#1b2631') {
 {
   const g = groups.dg, L = labelGroups.dg;
   // Decke/Fußboden mit Treppenloch (x 4,95–6,075 / y 4,0–7,885)
-  for (const [a, b, c, d] of [[0, 0, W, 4.0], [0, 4.0, 4.95, D], [6.075, 4.0, W, D]])
+  for (const [a, b, c, d] of [[0, 0, W, 4.545], [0, 4.545, 4.95, D], [6.075, 4.545, W, 6.885], [6.9, 6.885, W, D]])
     box(g, a, b, c, d, EG_H, DG0, mat.floor);
   box(g, 3.835, 0.45, 6.075, 2.9, DG0 + 0.001, DG0 + 0.01, mat.bath);
   // Kniestöcke vorne/hinten
@@ -241,7 +260,9 @@ function label(g, text, x, y, z, color = '#1b2631') {
   for (const [a, b] of [[2.0, 3.0], [5.0, 6.0]]) box(g, W - 0.47, a, W + 0.02, b, DG0 + 0.9, DG0 + 2.1, mat.glassNew);
   // Innenwände
   dgWallY(g, 3.72, 3.835, 0.45, 7.885, mat.wall, CAP, [[3.1, 3.9]]);
-  dgWallY(g, 6.075, 6.19, 0.45, 7.885, mat.wall, CAP, [[3.1, 3.95]]);
+  dgWallY(g, 6.075, 6.19, 0.45, 6.885, mat.wall, CAP, [[3.1, 3.95]]);
+  dgWallX(g, 6.19, 7.0, 6.885, 6.985, mat.wall);
+  dgWallY(g, 6.9, 7.0, 6.985, 7.885, mat.wall);
   dgWallY(g, 7.1, 7.2, 2.95, 4.45, mat.wall, CAP, [[3.2, 4.0]]);
   dgWallX(g, 0.45, 3.72, 2.59, 2.705, mat.wall, [[2.6, 3.4]]);
   dgWallX(g, 3.835, 6.075, 2.9, 3.0, mat.wall, [[4.2, 5.0]]);
@@ -250,11 +271,11 @@ function label(g, text, x, y, z, color = '#1b2631') {
   dgWallX(g, 3.835, 4.95, 6.0, 6.1, mat.wall, [[4.0, 4.8]]);
   // Geländer am Treppenloch (Stahl)
   const rail = (x0, y0, x1, y1) => { box(g, x0, y0, x1, y1, DG0 + 0.95, DG0 + 1.0, mat.steel); };
-  rail(4.93, 4.0, 4.97, 6.0); rail(6.04, 4.0, 6.075, 6.5);
-  for (let y = 4.1; y < 6.0; y += 0.3) box(g, 4.935, y, 4.965, y + 0.03, DG0, DG0 + 0.95, mat.steel);
+  rail(4.93, 4.545, 4.97, 6.0);
+  for (let y = 4.6; y < 6.0; y += 0.3) box(g, 4.935, y, 4.965, y + 0.03, DG0, DG0 + 0.95, mat.steel);
 
   label(L, 'Schlafen', 2.1, 5.2, DG0 + 1.5); label(L, 'Ankleide', 2.1, 1.5, DG0 + 1.0);
-  label(L, 'Bad neu', 4.95, 1.8, DG0 + 1.3, '#1f618d'); label(L, 'Podest', 4.9, 3.5, DG0 + 1.6);
+  label(L, 'Bad neu', 4.95, 1.8, DG0 + 1.3, '#1f618d'); label(L, 'Flur', 4.9, 3.6, DG0 + 1.6);
   label(L, 'Zimmer A', 8.3, 2.0, DG0 + 1.4); label(L, 'Zimmer B', 8.0, 6.6, DG0 + 1.4);
   label(L, 'Abstell', 4.4, 7.0, DG0 + 1.0);
 }
@@ -388,15 +409,25 @@ function tv(g, x0, y0, x1, y1, z, face) { cabinet(g, x0, y0, x1, y1, z, 0.45, S.
   box(g, 9.45, 1.05, 9.8, 3.1, z + 1.5, z + 2.2, S.white);             // Oberschränke
   box(g, 9.2, 3.15, 9.8, 3.95, z, z + 2.2, S.white);                   // Kühlschrank-Hochschrank
   box(g, 9.6, 1.8, 9.8, 2.1, z + 1.45, z + 1.5, S.black);              // Haube
-  table(g, 7.0, 2.2, 8.6, 3.1, z); for (const [x, y, b] of [[7.4, 1.9, 's'], [8.2, 1.9, 's'], [7.4, 3.4, 'n'], [8.2, 3.4, 'n']]) chair(g, x, y, z, b, b === 's' ? S.white : S.oak);
-  pendant(g, 7.5, 2.65, z + 2.7); pendant(g, 8.1, 2.65, z + 2.7); plant(g, 6.5, 3.7, z, 0.8);
-  // Schlafen EG
-  rug(g, 7.4, 5.0, 9.6, 7.0, z, S.rug2);
-  bed(g, 7.8, 5.2, 9.8, 6.8, z, 'e', S.mustard); nightstand(g, 9.5, 4.85, z); nightstand(g, 9.5, 7.15, z);
-  wardrobe(g, 6.3, 6.6, 6.9, 7.85, z);
+  // Kochinsel zum offenen Essbereich mit Barhockern
+  box(g, 7.1, 2.7, 8.9, 3.6, z + 0.1, z + 0.88, S.white); box(g, 7.05, 2.65, 8.95, 3.65, z + 0.88, z + 0.92, S.oak);
+  box(g, 7.15, 2.75, 8.85, 3.55, z, z + 0.1, S.black);
+  for (const x of [7.5, 8.1, 8.6]) { cyl(g, x, 3.95, z, z + 0.65, 0.02, S.black, 8); cyl(g, x, 3.95, z + 0.62, z + 0.66, 0.18, S.oak); }
+  pendant(g, 7.6, 3.15, z + 2.7); pendant(g, 8.4, 3.15, z + 2.7);
+  // Essbereich (ehem. Schlafzimmer)
+  rug(g, 7.0, 4.4, 9.7, 6.4, z, S.rug2);
+  table(g, 7.6, 4.9, 9.4, 5.9, z);
+  for (const [x, y, b] of [[7.95, 4.55, 's'], [8.5, 4.55, 's'], [9.05, 4.55, 's'], [7.95, 6.25, 'n'], [8.5, 6.25, 'n'], [9.05, 6.25, 'n']])
+    chair(g, x, y, z, b, b === 's' ? S.white : S.sage);
+  pendant(g, 8.2, 5.4, z + 2.7); pendant(g, 8.8, 5.4, z + 2.7);
+  // Leseecke + Regal rechts hinten
+  box(g, 9.4, 6.5, 9.8, 7.85, z, z + 2.0, S.birch);
+  for (const h of [0.5, 0.9, 1.3, 1.7]) box(g, 9.42, 6.6, 9.75, 7.75, z + h, z + h + 0.25, S.fabric);
+  sofa(g, 8.2, 6.8, 9.0, 7.6, z, 'n', S.mustard); floorLamp(g, 7.95, 7.6, z);
+  plant(g, 6.5, 6.4, z); plant(g, 4.4, 6.0, z, 0.9);
   // Flur
   box(g, 4.12, 0.6, 4.5, 1.7, z + 0.05, z + 0.45, S.oak); box(g, 4.1, 0.6, 4.14, 1.7, z + 1.6, z + 1.65, S.oak);
-  rug(g, 4.25, 2.2, 4.95, 6.5, z, S.rug2); plant(g, 4.5, 7.5, z, 0.7);
+  rug(g, 4.2, 2.2, 4.95, 4.8, z, S.rug2);
   // Anbau: Bad, HWR
   box(g, 0.5, 8.5, 1.25, 10.2, z, z + 0.55, S.ceramic); toilet(g, 2.6, 9.0, z, 'w'); vanity(g, 2.3, 10.15, 2.95, 10.7, z);
   box(g, 0.5, 11.0, 1.1, 11.6, z, z + 0.85, S.white); box(g, 0.5, 11.65, 1.1, 12.25, z, z + 0.85, S.white);
@@ -411,11 +442,17 @@ function tv(g, x0, y0, x1, y1, z, face) { cabinet(g, x0, y0, x1, y1, z, 0.45, S.
   shelfLow(g, 0.6, 7.0, 3.5, 7.4, z, 0.45); sofa(g, 0.55, 3.0, 1.35, 3.7, z, 'w', S.mustard); plant(g, 0.8, 6.6, z, 0.8);
   // Ankleide
   box(g, 0.7, 2.0, 3.5, 2.5, z, z + 1.7, S.birch); box(g, 1.3, 1.1, 2.6, 1.5, z, z + 0.45, S.fabric);
-  // Bad neu
-  box(g, 3.95, 0.8, 5.65, 1.55, z, z + 0.55, S.ceramic);
-  toilet(g, 5.75, 1.9, z, 'w');
-  vanity(g, 3.835, 1.95, 4.4, 2.75, z); box(g, 3.835, 2.0, 3.86, 2.7, z + 1.1, z + 1.9, S.mirror);
-  plant(g, 5.8, 0.95, z, 0.5);
+  // Bad neu (Fliesen salbeigrau, Eichen-Waschtisch, Wanne unter der Schräge)
+  const tile = M(0xb9c9c2), tileF = M(0x8a8f8c);
+  box(g, 3.835, 0.45, 6.075, 2.9, z + 0.011, z + 0.02, tileF);
+  box(g, 3.835, 0.45, 3.86, 2.9, z, z + 1.2, tile); box(g, 6.05, 0.45, 6.075, 2.9, z, z + 1.2, tile);
+  box(g, 3.835, 2.875, 6.075, 2.9, z, z + 1.2, tile);
+  box(g, 3.95, 0.75, 5.5, 1.55, z, z + 0.55, S.ceramic); box(g, 4.05, 0.85, 5.4, 1.45, z + 0.5, z + 0.56, M(0x9fd3e8));
+  toilet(g, 5.75, 2.1, z, 'w');
+  vanity(g, 3.86, 1.8, 4.4, 2.7, z); box(g, 3.86, 1.9, 3.88, 2.6, z + 1.1, z + 1.9, S.mirror);
+  box(g, 5.6, 2.84, 6.0, 2.87, z + 0.4, z + 1.4, S.black);
+  rug(g, 4.6, 1.7, 5.3, 2.5, z + 0.02, S.rug);
+  plant(g, 5.7, 1.0, z, 0.5);
   // Podest / Flur
   plant(g, 4.2, 3.3, z, 0.7); rug(g, 3.95, 3.15, 4.85, 5.9, z, S.rug2);
   // Abstell
@@ -462,7 +499,7 @@ const views = {
   iso: [[13, 11, 17], [0, 1, -2]],
   front: [[0, 4, 22], [0, 2, 0]],
   top: [[0.01, 30, 0.01], [0, 0, -2]],
-  stair: [[-3.5, 4.5, -6], [0.8, 1.5, -1.5]],
+  stair: [[5.5, 4.0, 2.5], [1.2, 1.2, -2.6]],
 };
 function setView(v) { const [p, t] = views[v]; camera.position.set(...p); controls.target.set(...t); controls.update(); }
 document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
@@ -478,16 +515,16 @@ setView('iso');
 const EYE = 1.6;
 const floorZ = { '-1': KG0, '0': 0, '1': DG0 };
 const rooms = [
-  ['Eingang / Flur', 4.6, 0.9, 0, 0],
+  ['Eingang / Windfang', 4.6, 0.9, 0, 0],
   ['Gästezimmer', 3.4, 0.9, 0, Math.PI / 4],
-  ['Gäste-WC', 3.7, 2.45, 0, Math.PI / 4],
+  ['Gästebad', 3.7, 2.45, 0, Math.PI / 4],
   ['Wohnen', 3.5, 4.5, 0, Math.PI / 4],
   ['Küche', 6.6, 3.7, 0, -3 * Math.PI / 4],
-  ['Schlafen EG', 6.6, 4.4, 0, -Math.PI / 4],
-  ['Neue Treppe (unten)', 4.55, 7.6, 0, -3 * Math.PI / 4],
+  ['Essbereich', 6.6, 4.4, 0, -Math.PI / 4],
+  ['L-Treppe', 9.4, 4.3, 0, Math.PI / 4, 0.05],
   ['Kellerflur', 4.6, 0.9, -1, 0],
-  ['DG Podest', 4.4, 3.6, 1, Math.PI],
-  ['DG Bad neu', 4.4, 2.75, 1, 3 * Math.PI / 4, 0.5],
+  ['DG Flur', 4.4, 3.9, 1, Math.PI],
+  ['DG Bad neu', 5.0, 2.7, 1, Math.PI, 0.45],
   ['DG Schlafen', 3.3, 3.4, 1, Math.PI / 4],
   ['DG Zimmer A', 7.5, 2.7, 1, -3 * Math.PI / 4],
   ['DG Zimmer B', 6.7, 5.0, 1, -Math.PI / 4],
