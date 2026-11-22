@@ -389,8 +389,10 @@ function tv(g, x0, y0, x1, y1, z, face) { cabinet(g, x0, y0, x1, y1, z, 0.45, S.
   // Wohnen
   rug(g, 0.9, 5.0, 3.3, 7.0, z);
   sofa(g, 0.8, 6.95, 3.3, 7.85, z, 'n');
-  roundTable(g, 2.0, 6.0, z, 0.4);
-  sofa(g, 0.5, 4.9, 1.3, 5.7, z, 'w', S.mustard);
+  sofa(g, 3.2, 4.9, 4.05, 6.95, z, 'e', S.fabric);                      // L-Sofa als Raumteiler zum Essbereich
+  box(g, 0.48, 6.95, 0.9, 7.85, z, z + 0.55, S.oak);                     // Beistelltisch
+  plant(g, 0.75, 4.55, z, 0.9);  roundTable(g, 2.0, 6.0, z, 0.4);
+  sofa(g, 0.5, 5.0, 1.3, 5.8, z, 'w', S.mustard);
   tv(g, 1.0, 4.12, 3.0, 4.55, z, 'n');
   floorLamp(g, 3.6, 7.5, z); plant(g, 3.6, 4.5, z);
   // Küche (skandinavisch: weiße Fronten, Eichen-Arbeitsplatte)
@@ -417,10 +419,15 @@ function tv(g, x0, y0, x1, y1, z, face) { cabinet(g, x0, y0, x1, y1, z, 0.45, S.
   box(g, 9.4, 6.5, 9.8, 7.85, z, z + 2.0, S.birch);
   for (const h of [0.5, 0.9, 1.3, 1.7]) box(g, 9.42, 6.6, 9.75, 7.75, z + h, z + h + 0.25, S.fabric);
   sofa(g, 8.2, 6.8, 9.0, 7.6, z, 'n', S.mustard); floorLamp(g, 7.95, 7.6, z);
-  plant(g, 6.5, 6.4, z); plant(g, 4.4, 6.0, z, 0.9);
+  plant(g, 6.5, 6.4, z); plant(g, 4.4, 7.5, z, 0.9);
+  box(g, 6.3, 0.5, 6.85, 2.0, z, z + 2.1, S.white);                      // Hochschrank/Vorrat Küche
+  box(g, 9.45, 4.2, 9.8, 6.2, z + 0.1, z + 0.75, S.oak);                  // Sideboard Essbereich
+  plant(g, 9.6, 3.85, z, 0.8);
   // Flur
-  box(g, 4.12, 0.6, 4.5, 1.7, z + 0.05, z + 0.45, S.oak); box(g, 4.1, 0.6, 4.14, 1.7, z + 1.6, z + 1.65, S.oak);
-  rug(g, 4.2, 2.2, 4.95, 4.8, z, S.rug2);
+  box(g, 4.12, 3.35, 4.5, 4.0, z, z + 2.0, S.white); box(g, 4.12, 1.5, 4.45, 2.35, z + 0.05, z + 0.45, S.oak);
+  for (const y of [1.6, 1.9, 2.2]) cyl(g, 4.13, y, z + 1.6, z + 1.65, 0.03, S.black, 8);
+  rug(g, 4.3, 0.55, 5.4, 1.35, z, S.rug2);
+  
   // Anbau: Bad, HWR
   box(g, 0.5, 8.5, 1.25, 10.2, z, z + 0.55, S.ceramic); toilet(g, 2.6, 9.0, z, 'w'); vanity(g, 2.3, 10.15, 2.95, 10.7, z);
   box(g, 0.5, 11.0, 1.1, 11.6, z, z + 0.85, S.white); box(g, 0.5, 11.65, 1.1, 12.25, z, z + 0.85, S.white);

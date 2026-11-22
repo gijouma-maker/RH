@@ -3,10 +3,12 @@
 Interaktives 3D-Modell des Hauses (Keller, Erdgeschoss mit Anbau, Dachgeschoss, Dach) mit dem geplanten Umbau und Möbeln im skandinavischen Stil.
 
 **Inhalt der Planung**
-- EG: Gästezimmer + Gästebad links vorne; Wohnen, Essen und Küche als ein offener Raum (Wände neben der Treppe entfernt, Unterzüge)
+- EG: komplett offener Raum (Wohnen, Essen, Küche, Eingang); stehen bleiben nur Kellerschacht, Gästezimmer und Gästebad
 - Kellertreppe bleibt und wird eingemauert, mit eigener Tür
 - Neue L-Treppe mit Podest (Stahlwangen anthrazit, offene Eichenstufen) frei im offenen Raum; Windfang mit Glaswand
 - DG: neues Bad über dem Kellerschacht, Fallleitung senkrecht bis in den Keller, rechts Zimmer A und B mit Giebelfenstern
+
+**Grundriss-Skizze:** [Skizze_Variante_6.pdf](Skizze_Variante_6.pdf)
 
 ## Online stellen mit GitHub Pages
 1. Bei GitHub ein neues Repository mit dem Namen **RH** anlegen (öffentlich).
