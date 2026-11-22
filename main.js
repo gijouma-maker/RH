@@ -154,7 +154,6 @@ function label(g, text, x, y, z, color = '#1b2631') {
   // Fußboden mit Öffnung für Kellertreppe
   for (const [a, b, c, d] of [[0, 0, W, 2.25], [0, 3.7, W, D], [0, 2.25, 5.3, 3.7], [5.8, 2.25, W, 3.7]])
     box(g, a, b, c, d, -SLAB, 0, mat.floor);
-  box(g, 6.22, 0.45, 9.8, 4.0, 0.001, 0.01, mat.kitchen);
   // weiße Decke EG (unter dem DG-Fußboden, mit Treppenloch)
   for (const [a, b, c, d] of [[0.45, 0.45, W - 0.45, 4.545], [0.45, 4.545, 4.95, D - 0.45], [6.075, 4.545, W - 0.45, 6.885], [6.9, 6.885, W - 0.45, D - 0.45]])
     box(groups.dg, a, b, c, d, EG_H - 0.02, EG_H - 0.005, M(0xf7f5f0));
@@ -168,23 +167,17 @@ function label(g, text, x, y, z, color = '#1b2631') {
   wall(g, 2.2, 2.1, 2.3, 4.0, 0, H, mat.wall);                                        // Gästebad
   wall(g, 2.2, 2.1, 3.98, 2.2, 0, H, mat.wall);
   wall(g, 3.98, 0.45, 4.095, 4.115, 0, H, mat.wall, [door(0.6, 1.4), door(2.5, 3.3)]); // nur vorne bleibt
-  wall(g, 6.105, 0.45, 6.22, 4.1, 0, H, mat.wall, [door(1.2, 2.0)]);                  // Küche | Windfang
-  // Unterzüge (Stahlträger, weiß verkleidet) statt der abgerissenen Wände
-  const uz = M(0xf1efea);
-  box(g, 3.98, 4.115, 4.095, D - 0.45, H - 0.28, H - 0.02, uz);
-  box(g, 6.105, 4.1, 6.22, D - 0.45, H - 0.28, H - 0.02, uz);
-  box(g, 6.22, 4.0, 9.8, 4.115, H - 0.28, H - 0.02, uz);
+  // Unterzüge (Stahlträger) an der Decke statt der abgerissenen Wände – gehören zur Decke (DG-Gruppe)
+  const uz = M(0x9aa0a6, { metalness: 0.5, roughness: 0.4 });
+  box(groups.dg, 4.0, 4.115, 4.08, D - 0.45, H - 0.22, H - 0.02, uz);
+  box(groups.dg, 6.12, 0.45, 6.2, D - 0.45, H - 0.22, H - 0.02, uz);
+  box(groups.dg, 6.22, 4.02, 9.8, 4.1, H - 0.22, H - 0.02, uz);
   // Kellertreppe eingemauert (bis zur Decke) mit eigener Tür
   wall(g, 5.05, 2.05, 5.15, 4.1, 0, H, mat.kgWall);
-  wall(g, 5.05, 2.05, 6.105, 2.15, 0, H, mat.kgWall);
+  wall(g, 5.05, 2.05, 6.2, 2.15, 0, H, mat.kgWall);
+  wall(g, 6.105, 2.15, 6.2, 4.1, 0, H, mat.kgWall);
   wall(g, 5.05, 4.0, 6.105, 4.1, 0, H, mat.kgWall, [door(5.2, 6.05)]);
   box(g, 5.15, 2.15, 6.105, 4.0, H - 0.02, H, mat.kgWall);
-  // Windfang: Glaswand mit Glastür (hält Wärme im Wohnbereich, Keller bleibt separat)
-  const gl = M(0xcfe8f5, { transparent: true, opacity: 0.3, roughness: 0.05 });
-  box(g, 4.095, 4.86, 5.15, 4.9, 0, H, gl); box(g, 3.98, 4.115, 4.095, 4.9, 0, H, gl);
-  box(g, 5.15, 4.86, 6.105, 4.9, 0, 2.3, gl);
-  box(g, 4.095, 4.85, 4.12, 4.91, 0, H, mat.steel); box(g, 5.13, 4.85, 5.16, 4.91, 0, H, mat.steel);
-
   // ---- Neue L-Treppe: Stahlwangen + Eichenstufen, Podest hinten ----
   const r = DG0 / 17, gd = 0.26, tread = 0.045;
   // unterer Lauf an der Rückwand (steigt nach links), 6 Stufen
@@ -222,7 +215,7 @@ function label(g, text, x, y, z, color = '#1b2631') {
 
   label(L, 'Gästezimmer', 1.3, 1.0, 1.6); label(L, 'Gästebad', 3.1, 3.1, 1.6);
   label(L, 'Wohnen (offen)', 2.2, 6.0, 1.9); label(L, 'Küche (offen)', 8.0, 2.2, 1.9);
-  label(L, 'Essen (offen)', 8.5, 5.5, 1.9); label(L, 'Windfang', 4.6, 1.2, 1.9);
+  label(L, 'Essen (offen)', 8.5, 5.5, 1.9); label(L, 'Eingang (offen)', 4.6, 1.2, 1.9);
   label(L, 'Keller ↓', 5.6, 3.0, 2.2, '#117a65'); label(L, 'L-Treppe Stahl/Eiche', 6.8, 7.4, 2.4, '#7b241c');
 
   // ---- Anbau (unverändert) ----
@@ -515,7 +508,7 @@ setView('iso');
 const EYE = 1.6;
 const floorZ = { '-1': KG0, '0': 0, '1': DG0 };
 const rooms = [
-  ['Eingang / Windfang', 4.6, 0.9, 0, 0],
+  ['Eingang', 4.6, 0.9, 0, -Math.PI / 6],
   ['Gästezimmer', 3.4, 0.9, 0, Math.PI / 4],
   ['Gästebad', 3.7, 2.45, 0, Math.PI / 4],
   ['Wohnen', 3.5, 4.5, 0, Math.PI / 4],
