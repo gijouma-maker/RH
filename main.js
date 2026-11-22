@@ -252,12 +252,12 @@ function label(g, text, x, y, z, color = '#1b2631') {
   for (const [a, b] of [[1.9, 2.45], [3.7, 4.5], [5.8, 6.3]]) box(g, -0.02, a, 0.47, b, DG0 + 0.9, DG0 + 2.0, mat.glass);
   for (const [a, b] of [[2.0, 3.0], [5.0, 6.0]]) box(g, W - 0.47, a, W + 0.02, b, DG0 + 0.9, DG0 + 2.1, mat.glassNew);
   // Innenwände
-  dgWallY(g, 3.72, 3.835, 0.45, 7.885, mat.wall, CAP, [[3.1, 3.9]]);
+  dgWallY(g, 3.72, 3.835, 0.45, 7.885, mat.wall, CAP, [[3.1, 3.9], [5.2, 6.0]]);
   dgWallY(g, 6.075, 6.19, 0.45, 6.885, mat.wall, CAP, [[3.1, 3.95]]);
   dgWallX(g, 6.19, 7.0, 6.885, 6.985, mat.wall);
   dgWallY(g, 6.9, 7.0, 6.985, 7.885, mat.wall);
   dgWallY(g, 7.1, 7.2, 2.95, 4.45, mat.wall, CAP, [[3.2, 4.0]]);
-  dgWallX(g, 0.45, 3.72, 2.59, 2.705, mat.wall, [[2.6, 3.4]]);
+  dgWallX(g, 0.45, 3.72, 5.0, 5.1, mat.wall);                          // neue Trennwand Zimmer C | D
   dgWallX(g, 3.835, 6.075, 2.9, 3.0, mat.wall, [[4.2, 5.0]]);
   dgWallX(g, 6.19, 7.2, 2.95, 3.05, mat.wall);
   dgWallX(g, 6.19, 9.8, 4.45, 4.56, mat.wall, [[6.25, 7.05]]);
@@ -267,7 +267,7 @@ function label(g, text, x, y, z, color = '#1b2631') {
   rail(4.93, 4.545, 4.97, 6.0);
   for (let y = 4.6; y < 6.0; y += 0.3) box(g, 4.935, y, 4.965, y + 0.03, DG0, DG0 + 0.95, mat.steel);
 
-  label(L, 'Schlafen', 2.1, 5.2, DG0 + 1.5); label(L, 'Ankleide', 2.1, 1.5, DG0 + 1.0);
+  label(L, 'Zimmer C', 2.1, 3.3, DG0 + 1.6); label(L, 'Zimmer D', 2.1, 6.0, DG0 + 1.4);
   label(L, 'Bad neu', 4.95, 1.8, DG0 + 1.3, '#1f618d'); label(L, 'Flur', 4.9, 3.6, DG0 + 1.6);
   label(L, 'Zimmer A', 8.3, 2.0, DG0 + 1.4); label(L, 'Zimmer B', 8.0, 6.6, DG0 + 1.4);
   label(L, 'Abstell', 4.4, 7.0, DG0 + 1.0);
@@ -436,12 +436,16 @@ function tv(g, x0, y0, x1, y1, z, face) { cabinet(g, x0, y0, x1, y1, z, 0.45, S.
 // --- DG --- (Möbel unter der Schräge niedrig gehalten)
 {
   const g = furn.dg, z = DG0;
-  // Schlafen
-  rug(g, 1.2, 4.0, 3.5, 6.4, z);
-  bed(g, 1.72, 4.3, 3.72, 6.1, z, 'e', S.blue); nightstand(g, 3.45, 3.95, z); nightstand(g, 3.45, 6.45, z);
-  shelfLow(g, 0.6, 7.0, 3.5, 7.4, z, 0.45); sofa(g, 0.55, 3.0, 1.35, 3.7, z, 'w', S.mustard); plant(g, 0.8, 6.6, z, 0.8);
-  // Ankleide
-  box(g, 0.7, 2.0, 3.5, 2.5, z, z + 1.7, S.birch); box(g, 1.3, 1.1, 2.6, 1.5, z, z + 0.45, S.fabric);
+  // Zimmer C (vorne links, mit 2 Fenstern)
+  rug(g, 1.2, 2.6, 3.5, 4.6, z);
+  bed(g, 1.72, 2.8, 3.72, 4.4, z, 'e', S.blue); nightstand(g, 3.45, 2.5, z); nightstand(g, 3.45, 4.72, z);
+  box(g, 0.9, 1.15, 3.2, 1.6, z, z + 0.8, S.white); box(g, 0.9, 1.15, 3.2, 1.6, z + 0.8, z + 0.83, S.oak);
+  sofa(g, 0.55, 3.0, 1.35, 3.7, z, 'w', S.mustard); plant(g, 0.8, 4.6, z, 0.7);
+  // Zimmer D (hinten links)
+  rug(g, 1.4, 5.3, 3.4, 6.5, z, S.rug2);
+  bed(g, 1.6, 5.25, 3.72, 6.15, z, 'e', S.sage);
+  desk(g, 0.5, 6.2, 1.1, 7.2, z); chair(g, 1.35, 6.7, z, 'e', S.oak);
+  shelfLow(g, 1.4, 7.0, 3.5, 7.4, z, 0.45); floorLamp(g, 0.7, 5.4, z);
   // Bad neu (Fliesen salbeigrau, Eichen-Waschtisch, Wanne unter der Schräge)
   const tile = M(0xb9c9c2), tileF = M(0x8a8f8c);
   box(g, 3.835, 0.45, 6.075, 2.9, z + 0.011, z + 0.02, tileF);
@@ -525,7 +529,8 @@ const rooms = [
   ['Kellerflur', 4.6, 0.9, -1, 0],
   ['DG Flur', 4.4, 3.9, 1, Math.PI],
   ['DG Bad neu', 5.0, 2.7, 1, Math.PI, 0.45],
-  ['DG Schlafen', 3.3, 3.4, 1, Math.PI / 4],
+  ['DG Zimmer C', 3.5, 4.75, 1, 3 * Math.PI / 4],
+  ['DG Zimmer D', 3.5, 5.35, 1, Math.PI / 4],
   ['DG Zimmer A', 7.5, 2.7, 1, -3 * Math.PI / 4],
   ['DG Zimmer B', 6.7, 5.0, 1, -Math.PI / 4],
   ['Außen (vorne)', 5.1, -7, 0, 0],
