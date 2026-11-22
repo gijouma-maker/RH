@@ -18,6 +18,20 @@
   .lg i{display:inline-block;width:14px;height:10px;border:1px solid #555}
   .hint{font-size:11px;color:#666;margin-top:6px}
   .views button{font-size:12px;margin:2px 2px 0 0;padding:4px 7px;border:1px solid #bbb;border-radius:6px;background:#f7f7f7}
+  #walkBtn{position:absolute;top:10px;right:80px;border:0;border-radius:8px;padding:8px 12px;background:#1f5f99;color:#fff;
+           box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:14px;font-weight:bold}
+  #walkUI{display:none}
+  body.walk #walkUI{display:block} body.walk #panel, body.walk #toggle, body.walk #walkBtn{display:none !important}
+  #walkTop{position:absolute;top:10px;left:10px;right:10px;display:flex;gap:8px}
+  #walkTop select{flex:1;font-size:16px;padding:8px;border-radius:8px;border:0;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  #walkTop button{font-size:14px;padding:8px 10px;border:0;border-radius:8px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+  #walkHint{position:absolute;top:62px;left:0;right:0;text-align:center;font-size:12px;color:#fff;text-shadow:0 1px 3px #000}
+  #pad{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,64px);gap:8px}
+  #pad button,#floorBtns button{height:60px;font-size:24px;border:0;border-radius:14px;background:rgba(255,255,255,.85);
+           box-shadow:0 2px 8px rgba(0,0,0,.25);user-select:none;-webkit-user-select:none;touch-action:none}
+  #floorBtns{position:absolute;bottom:24px;right:12px;display:flex;flex-direction:column;gap:6px}
+  #floorBtns button{height:40px;font-size:13px;padding:0 10px}
+  #c{touch-action:none}
 </style>
 <script type="importmap">
 { "imports": { "three": "./lib/three.module.min.js", "three/addons/": "./lib/" } }
@@ -26,6 +40,19 @@
 <body>
 <canvas id="c"></canvas>
 <button id="toggle">Menü</button>
+<button id="walkBtn">🚶 Rundgang</button>
+<div id="walkUI">
+  <div id="walkTop">
+    <select id="room"></select>
+    <button id="exitWalk">✕ 3D-Ansicht</button>
+  </div>
+  <div id="walkHint">Wischen = umschauen · Pfeile gedrückt halten = gehen/drehen</div>
+  <div id="pad">
+    <button data-k="tl">⟲</button><button data-k="fw">▲</button><button data-k="tr">⟳</button>
+    <button data-k="sl">◀</button><button data-k="bw">▼</button><button data-k="sr">▶</button>
+  </div>
+  <div id="floorBtns"><button data-f="1">DG ↑</button><button data-f="0">EG</button><button data-f="-1">Keller ↓</button></div>
+</div>
 <div id="panel">
   <h1>RH – Umbau Variante 5</h1>
   <label><input type="checkbox" id="kg" checked> Keller</label>

@@ -29,7 +29,7 @@ const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
-scene.add(new THREE.HemisphereLight(0xffffff, 0x8a9a7a, 1.1));
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d2c4, 1.2));
 const sun = new THREE.DirectionalLight(0xffffff, 1.6);
 sun.position.set(12, 20, 14); sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
@@ -155,6 +155,9 @@ function label(g, text, x, y, z, color = '#1b2631') {
   for (const [a, b, c, d] of [[0, 0, W, 2.25], [0, 3.7, W, D], [0, 2.25, 5.3, 3.7], [5.8, 2.25, W, 3.7]])
     box(g, a, b, c, d, -SLAB, 0, mat.floor);
   box(g, 6.22, 0.45, 9.8, 4.0, 0.001, 0.01, mat.kitchen);
+  // weiße Decke EG (unter dem DG-Fußboden, mit Treppenloch)
+  for (const [a, b, c, d] of [[0.45, 0.45, W - 0.45, 4.0], [0.45, 4.0, 4.95, D - 0.45], [6.075, 4.0, W - 0.45, D - 0.45]])
+    box(g, a, b, c, d, EG_H - 0.02, EG_H - 0.005, M(0xf7f5f0));
   // Außenwände
   wall(g, 0, 0, W, 0.45, 0, H, mat.outer, [win(1.235, 3.125), [4.585, 5.595, 0, 2.15], win(7.055, 8.945)]);
   wall(g, 0, D - 0.45, W, D, 0, H, mat.outer, [door(4.2, 5.0), win(7.2, 8.6)]);
@@ -267,7 +270,13 @@ function label(g, text, x, y, z, color = '#1b2631') {
     const yMid = side > 0 ? (ridgeY - over) / 2 : D - (ridgeY - over) / 2;
     m.position.set(0, (ridgeH + eaveH) / 2 + th / 2, CZ - yMid);
     m.rotation.x = side * PITCH; m.castShadow = true; g.add(m);
+    // Innenverkleidung (weiß) unter der Dachfläche
+    const lin = new THREE.Mesh(new THREE.BoxGeometry(W - 0.9, 0.02, len), M(0xf7f5f0));
+    lin.position.set(0, (ridgeH + eaveH) / 2 - 0.14, CZ - yMid); lin.rotation.x = side * PITCH; g.add(lin);
   }
+  // Kehlbalkendecke DG (flach, weiß)
+  const yc = 0.45 + (CAP - KNEE) / T;
+  box(g, 0.45, yc, W - 0.45, D - yc, DG0 + CAP, DG0 + CAP + 0.02, M(0xf7f5f0));
   }
 
 
@@ -464,10 +473,96 @@ document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => {
 });
 setView('iso');
 
+
+// ---------- RUNDGANG (Ich-Perspektive) ----------
+const EYE = 1.6;
+const floorZ = { '-1': KG0, '0': 0, '1': DG0 };
+const rooms = [
+  ['Eingang / Flur', 4.6, 0.9, 0, 0],
+  ['Gästezimmer', 3.4, 0.9, 0, Math.PI / 4],
+  ['Gäste-WC', 3.7, 2.45, 0, Math.PI / 4],
+  ['Wohnen', 3.5, 4.5, 0, Math.PI / 4],
+  ['Küche', 6.6, 3.7, 0, -3 * Math.PI / 4],
+  ['Schlafen EG', 6.6, 4.4, 0, -Math.PI / 4],
+  ['Neue Treppe (unten)', 4.55, 7.6, 0, -3 * Math.PI / 4],
+  ['Kellerflur', 4.6, 0.9, -1, 0],
+  ['DG Podest', 4.4, 3.6, 1, Math.PI],
+  ['DG Bad neu', 4.4, 2.75, 1, 3 * Math.PI / 4, 0.5],
+  ['DG Schlafen', 3.3, 3.4, 1, Math.PI / 4],
+  ['DG Zimmer A', 7.5, 2.7, 1, -3 * Math.PI / 4],
+  ['DG Zimmer B', 6.7, 5.0, 1, -Math.PI / 4],
+  ['Außen (vorne)', 5.1, -7, 0, 0],
+];
+const sel = document.getElementById('room');
+rooms.forEach((r, i) => { const o = document.createElement('option'); o.value = i; o.textContent = r[0]; sel.appendChild(o); });
+let walking = false, yaw = 0, pitch = 0, level = 0;
+const pos = new THREE.Vector3();
+const keys = {};
+function placeAt(i) {
+  const [, x, y, f, yw, pt = 0.2] = rooms[i];
+  level = f; yaw = yw; pitch = pt;
+  pos.set(x - CX, floorZ[f] + EYE, CZ - y);
+}
+function enterWalk(i = 0) {
+  walking = true; document.body.classList.add('walk');
+  controls.enabled = false;
+  const ex = document.getElementById('explode'); ex.value = 0; applyExplode(0);
+  for (const k of ['kg', 'eg', 'dg', 'roof']) { groups[k].visible = true; document.getElementById(k).checked = true; }
+  for (const l of Object.values(labelGroups)) l.visible = false;
+  lamp.visible = true; camera.fov = 70; camera.near = 0.05; camera.updateProjectionMatrix();
+  sel.value = i; placeAt(i);
+}
+function exitWalk() {
+  walking = false; document.body.classList.remove('walk');
+  lamp.visible = false; controls.enabled = true; camera.fov = 45; camera.near = 0.1; camera.updateProjectionMatrix();
+  camera.rotation.set(0, 0, 0);
+  for (const l of Object.values(labelGroups)) l.visible = document.getElementById('labels').checked;
+  setView('iso');
+}
+document.getElementById('walkBtn').onclick = () => enterWalk(0);
+document.getElementById('exitWalk').onclick = exitWalk;
+sel.onchange = () => placeAt(+sel.value);
+document.querySelectorAll('#floorBtns button').forEach(b => b.onclick = () => {
+  level = +b.dataset.f; pos.y = floorZ[level] + EYE;
+});
+document.querySelectorAll('#pad button').forEach(b => {
+  const k = b.dataset.k;
+  const on = e => { e.preventDefault(); keys[k] = true; }, off = () => keys[k] = false;
+  b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off);
+  b.addEventListener('pointerleave', off); b.addEventListener('pointercancel', off);
+});
+const keyMap = { ArrowUp: 'fw', w: 'fw', ArrowDown: 'bw', s: 'bw', ArrowLeft: 'tl', a: 'sl', ArrowRight: 'tr', d: 'sr', q: 'tl', e: 'tr' };
+addEventListener('keydown', e => { if (walking && keyMap[e.key]) { keys[keyMap[e.key]] = true; e.preventDefault(); } });
+addEventListener('keyup', e => { if (keyMap[e.key]) keys[keyMap[e.key]] = false; });
+// Wischen / Ziehen zum Umschauen
+let drag = null;
+canvas.addEventListener('pointerdown', e => { if (walking) drag = { x: e.clientX, y: e.clientY }; });
+addEventListener('pointerup', () => drag = null);
+canvas.addEventListener('pointermove', e => {
+  if (!walking || !drag) return;
+  yaw += (e.clientX - drag.x) * 0.005; pitch += (e.clientY - drag.y) * 0.004;
+  pitch = Math.max(-1.2, Math.min(1.2, pitch)); drag = { x: e.clientX, y: e.clientY };
+});
+const lamp = new THREE.PointLight(0xfff4e0, 2.5, 8, 1); lamp.visible = false;
+camera.add(lamp); scene.add(camera);
+const clock = new THREE.Clock();
+function walkStep() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  if (!walking) return;
+  const sp = 1.6 * dt, tr = 1.6 * dt;
+  if (keys.tl) yaw += tr; if (keys.tr) yaw -= tr;
+  const fx = -Math.sin(yaw), fz = -Math.cos(yaw);
+  let mv = 0, st = 0;
+  if (keys.fw) mv += 1; if (keys.bw) mv -= 1; if (keys.sl) st -= 1; if (keys.sr) st += 1;
+  pos.x += (fx * mv - fz * st) * sp; pos.z += (fz * mv + fx * st) * sp;
+  camera.position.copy(pos);
+  camera.rotation.set(-pitch, yaw, 0, 'YXZ');
+}
+
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
   renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
 }
 addEventListener('resize', resize); resize();
-renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+renderer.setAnimationLoop(() => { if (walking) walkStep(); else { clock.getDelta(); controls.update(); } renderer.render(scene, camera); });
 window.__ready = true;
